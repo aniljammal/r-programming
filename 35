@@ -1,18 +1,14 @@
-library(ggplot2)
-data(airquality)
-missing_percent <- colMeans(is.na(airquality)) * 100
-print(missing_percent)
-for (col in names(airquality)) {
-  if (missing_percent[col] < 10) {
-    mean_value <- mean(airquality[, col], na.rm = TRUE)
-    airquality[is.na(airquality[, col]), col] <- mean_value
-  } else {
-    airquality <- airquality[complete.cases(airquality[, col]), ]
-  }
-}
-model <- lm(Ozone ~ Solar.R, data = airquality)
-summary(model)
-ggplot(data = airquality, aes(x = Solar.R, y = Ozone)) +
-  geom_point() +
-  geom_smooth(method = "lm", se = FALSE, color = "blue") +
-  labs(x = "Solar.R", y = "Ozone", title = "Scatter Plot with Linear Regression")
+library(reshape2)
+data(ChickWeight)
+ordered_data <- ChickWeight[order(ChickWeight$weight), ]
+last_6_records <- tail(ordered_data, 6)
+print(last_6_records)
+melted_data <- melt(ChickWeight, id.vars = c("Chick", "Time", "Diet"))
+print(melted_data)
+mean_weight_by_diet <- dcast(melted_data, Diet ~ ., fun.aggregate = mean, value.var = "value")
+print(mean_weight_by_diet)
+library(dplyr)
+mode_weight_by_diet <- melted_data %>%
+  group_by(Diet) %>%
+  summarize(mode_weight = as.numeric(names(table(value))[table(value) == max(table(value))]))
+print(mode_weight_by_diet)
